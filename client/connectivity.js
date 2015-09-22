@@ -50,18 +50,16 @@ Connectivity._monitor = function(){
             }
             console.warn('disconnected');
         } else {
-            if (Meteor.connection._heartbeat) {
-                // Calculate the threshold for considering a connection slow using the heartbeat roundtrip duration and the maxLatency
-                var interval = Meteor.connection._heartbeat.heartbeatTimeout * 2 + config.maxLatency;
-                latentIntervalHandle = Meteor.setInterval(function(){
-                    if (Meteor.connection._heartbeat._heartbeatIntervalHandle === heartbeatIntervalHandle) {
-                        // we've detected a slow connection based on our configured limits
-                        self._callbacks.onSlowConnection && self._callbacks.onSlowConnection();
-                    } else {
-                        heartbeatIntervalHandle = Meteor.connection._heartbeat._heartbeatIntervalHandle;
-                    }
-                }, interval);
-            }
+            // Calculate the threshold for considering a connection slow using the heartbeat roundtrip duration and the maxLatency
+            var interval = Meteor.connection._heartbeatTimeout * 2 + config.maxLatency;
+            latentIntervalHandle = Meteor.setInterval(function(){
+                if (Meteor.connection._heartbeat._heartbeatIntervalHandle === heartbeatIntervalHandle) {
+                    // we've detected a slow connection based on our configured limits
+                    self._callbacks.onSlowConnection && self._callbacks.onSlowConnection();
+                } else {
+                    heartbeatIntervalHandle = Meteor.connection._heartbeat._heartbeatIntervalHandle;
+                }
+            }, interval);
         }
     });  
 };
