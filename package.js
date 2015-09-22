@@ -1,5 +1,5 @@
 Package.describe({
-  name: 'connectivity',
+  name: 'useful:connectivity',
   version: '0.0.1',
   summary: 'Monitors connection speed',
   git: '',
