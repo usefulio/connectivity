@@ -26,7 +26,8 @@ Connectivity.monitor = function(callbacks){
 };
 
 Connectivity._monitor = function(){
-    var self = this;
+    var self = this
+        , beforeConnection = true;
 
     // Monitor
     Tracker.autorun(function(){
@@ -34,7 +35,11 @@ Connectivity._monitor = function(){
             if (latentIntervalHandle) {
                 Meteor.clearInterval(latentIntervalHandle);
             }
-            console.warn('disconnected');
+            if (beforeConnection) {
+                beforeConnection = false;
+            } else {
+                self._callbacks.onError('Meteor has disconnected!');
+            }
         } else {
             // Calculate the threshold for considering a connection slow using the heartbeat roundtrip duration and the maxLatency
             var interval = Meteor.connection._heartbeatTimeout * 2 + config.maxLatency;
