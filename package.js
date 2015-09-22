@@ -16,8 +16,7 @@ Package.onUse(function(api) {
   ], 'client');
 
   api.addFiles([
-    'client/compatibility/speedofme.js'
-    , 'client/connectivity.js'
+    'client/connectivity.js'
   ], 'client');
 
   api.export('Connectivity');
