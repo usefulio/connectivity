@@ -8,10 +8,10 @@ Connectivity = {
     , latency: new ReactiveVar(0)
 };
 
-Connectivity.monitor = function(callbacks){
+Connectivity.monitor = function(callbacks, maxLatency){
     // set config defaults
-    config = _.defaults(Meteor.settings.public.connectivity, {
-        maxLatency: 10000 // milliseconds
+    config = _.defaults({}, {
+        maxLatency: maxLatency || 10000
     });
 
     this._callbacks = _.extend({
