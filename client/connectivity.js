@@ -3,29 +3,17 @@ var config
     , heartbeatIntervalHandle = null;
 
 Connectivity = {
-    _initialized: false
-    , _callbacks: {}
+    _callbacks: {}
     , isSlow: new ReactiveVar(false)
     , latency: new ReactiveVar(0)
 };
 
-Connectivity.init = function () {
-    var success = this._initialized;
-    // check a flag to see if the user wants to monitor yet
-    if (! success) {
-        this._initialized = true;
-
-        // do what we were asked to do if we were asked to do something
-        config = _.defaults(Meteor.settings.public.connectivity, {
-            maxLatency: 10000 // milliseconds
-        });
-
-        success = true;
-    }
-    return success;
-};
-
 Connectivity.monitor = function(callbacks){
+    // set config defaults
+    config = _.defaults(Meteor.settings.public.connectivity, {
+        maxLatency: 10000 // milliseconds
+    });
+
     this._callbacks = _.extend({
         onError: function(error){
             if (! _.isUndefined(console)) {
@@ -34,9 +22,7 @@ Connectivity.monitor = function(callbacks){
         }
     }, callbacks);
 
-    if (this.init()) {
-        this._monitor();
-    }
+    this._monitor();
 };
 
 Connectivity._monitor = function(){
