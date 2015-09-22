@@ -2,7 +2,7 @@ Package.describe({
   name: 'useful:connectivity',
   version: '0.0.1',
   summary: 'Monitors connection speed',
-  git: '',
+  git: 'https://github.com/usefulio/connectivity.git',
   documentation: 'README.md'
 });
 
