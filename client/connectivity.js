@@ -5,7 +5,9 @@ var config
 Connectivity = {
     _callbacks: {}
     , _isSlow: new ReactiveVar(false)
-    , latency: new ReactiveVar(0)
+    //, latency: new ReactiveVar(0) 
+    // XXX In its current form, this package does not calculate the latency value, 
+    // it only checks if the latency is greater than `maxLatency`
 };
 
 Connectivity.monitor = function(callbacks, maxLatency){
