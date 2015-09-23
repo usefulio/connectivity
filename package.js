@@ -24,7 +24,7 @@ Package.onUse(function(api) {
 });
 
 Package.onTest(function(api) {
-  // api.use('tinytest');
-  // api.use('connectivity');
-  // api.addFiles('connectivity-tests.js');
+  api.use('tinytest');
+  api.use('useful:connectivity');
+  api.addFiles('tests/connectivity-tests.js');
 });
