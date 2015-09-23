@@ -31,6 +31,10 @@ Connectivity.isSlow = function(){
     return this._isSlow.get();
 }
 
+Connectivity.strength = function(){
+    return Meteor.status().connected ? (this.isSlow() ? 1 : 2) : 0;
+}
+
 Connectivity._monitor = function(){
     var self = this
         , beforeConnection = true;
