@@ -4,7 +4,7 @@ var config
 
 Connectivity = {
     _callbacks: {}
-    , isSlow: new ReactiveVar(false)
+    , _isSlow: new ReactiveVar(false)
     , latency: new ReactiveVar(0)
 };
 
@@ -24,6 +24,10 @@ Connectivity.monitor = function(callbacks, maxLatency){
 
     this._monitor();
 };
+
+Connectivity.isSlow = function(){
+    return this._isSlow.get();
+}
 
 Connectivity._monitor = function(){
     var self = this
@@ -46,8 +50,10 @@ Connectivity._monitor = function(){
             latentIntervalHandle = Meteor.setInterval(function(){
                 if (Meteor.connection._heartbeat._heartbeatIntervalHandle === heartbeatIntervalHandle) {
                     // we've detected a slow connection based on our configured limits
+                    self._isSlow.set(true);
                     self._callbacks.onSlowConnection && self._callbacks.onSlowConnection();
                 } else {
+                    self._isSlow.set(false);
                     heartbeatIntervalHandle = Meteor.connection._heartbeat._heartbeatIntervalHandle;
                 }
             }, interval);
