@@ -21,29 +21,26 @@ Connectivity.monitor({
 
 ## API
 
-### `Connectivity.monitor([callbacks], [options])`
+### `Connectivity.monitor([config])`
 Starts monitoring the connection.
 
-- `callbacks` an optional object containing callback methods. Used to override the built-in `onError` and `onSlowConnection` callback methods. Each of the methods is optional. Example:
+- `config` an optional configuration object containing custom callback methods and options.
+  - `onError` error handler callback.
+  - `onSlow` callback method to be executed when a slow connection is detected.
+  - `maxLatency` an integer representing the maximum accepted latency value (in miliseconds) before considering a connection "slow". Defaults to `2000`.
+  - `retryInterval` an integer representing how much time (in miliseconds) should pass between pings. Defaults to `5000`. 
+
+Example:
 ```js
 Connectivity.monitor({
-  'onError': function (error) {
+  onError: function (error) {
     console.warn('Error: ' + error);
   }
-  , 'onSlowConnection': function () {
+  , onSlow: function () {
     console.log('This connection is slow!');
   }
-});
-```
-
-- `options` an optional object containing custom configuration options. 
-
-	- `maxLatency` an integer representing the maximum accepted latency value (in miliseconds) before considering a connection "slow". Defaults to `2000`.
-	- `retryInterval` an integer representing how much time (in miliseconds) should pass between pings. Defaults to `5000`. Example:
-```js
-Connectivity.monitor({}, {
-    retryInterval: 700
-    , maxLatency: 150
+  , retryInterval: 700
+  , maxLatency: 150
 });
 ```
 
@@ -103,7 +100,7 @@ Example - use `Connectivity.strength()` to create a simple phone-style signal in
 
 *signal.js:*
 ```js
-Connectivity.monitor({}, {
+Connectivity.monitor({
     maxLatency: 1000
 });
 
@@ -135,10 +132,10 @@ Template.Signal.helpers({
 *signal.css:*
 ```css
 .bar {
-	background-color: #888;
-	float: left;
-	margin: 1px;
-	width: 18px;
+  background-color: #888;
+  float: left;
+  margin: 1px;
+  width: 18px;
 }
 ```
 -----------------------------------
