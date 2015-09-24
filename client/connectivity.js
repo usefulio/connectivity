@@ -9,9 +9,9 @@ Connectivity = {
 
 Connectivity.monitor = function(callbacks, options){
     // set config defaults
-    config = _.defaults({}, {
-        maxLatency: options.maxLatency || 2000
-        , retryInterval: options.retryInterval || 5000
+    config = _.defaults(options || {}, {
+        maxLatency: 2000
+        , retryInterval: 5000
     });
 
     this._callbacks = _.extend({
