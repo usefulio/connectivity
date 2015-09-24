@@ -4,9 +4,7 @@ var config
 Connectivity = {
     _callbacks: {}
     , _isSlow: new ReactiveVar(false)
-    //, latency: new ReactiveVar(0) 
-    // XXX In its current form, this package does not calculate the latency value, 
-    // it only checks if the latency is greater than `maxLatency`
+    , _latency: new ReactiveVar(0) 
 };
 
 Connectivity.monitor = function(callbacks, options){
@@ -29,6 +27,10 @@ Connectivity.monitor = function(callbacks, options){
 
 Connectivity.isSlow = function(){
     return this._isSlow.get();
+}
+
+Connectivity.latency = function(){
+    return this._latency.get();
 }
 
 Connectivity.strength = function(){
@@ -59,6 +61,7 @@ Connectivity._monitor = function(){
                     } else {
                         var currentTimestamp = Date.now()
                             , latency = currentTimestamp - initialTimestamp;
+                        self._latency.set(latency);
                         if (latency > config.maxLatency) {
                             // we've detected a slow connection based on our configured limits
                             self._isSlow.set(true);
