@@ -1,6 +1,6 @@
 Package.describe({
   name: 'useful:connectivity',
-  version: '0.0.1',
+  version: '2.0.0',
   summary: 'Monitors connection speed',
   git: 'https://github.com/usefulio/connectivity.git',
   documentation: 'README.md'
@@ -10,8 +10,7 @@ Package.onUse(function(api) {
   api.versionsFrom('1.0');
 
   api.use([
-    'ddp'
-    , 'underscore'
+    'underscore'
     , 'reactive-var'
   ], 'client');
 
@@ -19,8 +18,11 @@ Package.onUse(function(api) {
     'client/connectivity.js'
   ], 'client');
 
-  api.export('Connectivity');
+  api.addFiles([
+    'server/methods/ping.js'
+  ], 'server');
 
+  api.export('Connectivity');
 });
 
 Package.onTest(function(api) {

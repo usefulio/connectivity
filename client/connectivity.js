@@ -1,6 +1,5 @@
 var config
-    , latentIntervalHandle
-    , heartbeatIntervalHandle = null;
+    , latentIntervalHandle;
 
 Connectivity = {
     _callbacks: {}
@@ -10,10 +9,11 @@ Connectivity = {
     // it only checks if the latency is greater than `maxLatency`
 };
 
-Connectivity.monitor = function(callbacks, maxLatency){
+Connectivity.monitor = function(callbacks, options){
     // set config defaults
     config = _.defaults({}, {
-        maxLatency: maxLatency || 10000
+        maxLatency: options.maxLatency || 2000
+        , retryInterval: options.retryInterval || 5000
     });
 
     this._callbacks = _.extend({
@@ -51,18 +51,24 @@ Connectivity._monitor = function(){
                 self._callbacks.onError('Meteor has disconnected!');
             }
         } else {
-            // Calculate the threshold for considering a connection slow using the heartbeat roundtrip duration and the maxLatency
-            var interval = Meteor.connection._heartbeatTimeout * 2 + config.maxLatency;
             latentIntervalHandle = Meteor.setInterval(function(){
-                if (Meteor.connection._heartbeat._heartbeatIntervalHandle === heartbeatIntervalHandle) {
-                    // we've detected a slow connection based on our configured limits
-                    self._isSlow.set(true);
-                    self._callbacks.onSlowConnection && self._callbacks.onSlowConnection();
-                } else {
-                    self._isSlow.set(false);
-                    heartbeatIntervalHandle = Meteor.connection._heartbeat._heartbeatIntervalHandle;
-                }
-            }, interval);
+                var timestamp = Date.now();
+                Meteor.call('connectivity.ping', timestamp, function (err, initialTimestamp) {
+                    if (err && !_.isUndefined(console)) {
+                        console.error(err.message || err.reason);
+                    } else {
+                        var currentTimestamp = Date.now()
+                            , latency = currentTimestamp - initialTimestamp;
+                        if (latency > config.maxLatency) {
+                            // we've detected a slow connection based on our configured limits
+                            self._isSlow.set(true);
+                            self._callbacks.onSlowConnection && self._callbacks.onSlowConnection();
+                        } else {
+                            self._isSlow.set(false);
+                        }
+                    }
+                });
+            }, config.retryInterval);
         }
     });  
 };
