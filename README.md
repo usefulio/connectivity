@@ -21,25 +21,29 @@ Connectivity.monitor({
 
 ## API
 
-### `Connectivity.monitor([callbacks], [maxLatency])`
+### `Connectivity.monitor([config])`
 Starts monitoring the connection.
 
-- `callbacks` an optional object containing callback methods. Used to override the built-in `onError` and `onSlowConnection` callback methods. Each of the methods is optional. Example:
+- `config` an optional configuration object containing custom callback methods and options.
+  - `onError` error handler callback.
+  - `onSlow` callback method to be executed when a slow connection is detected.
+  - `maxLatency` an integer representing the maximum accepted latency value (in miliseconds) before considering a connection "slow". Defaults to `2000`.
+  - `retryInterval` an integer representing how much time (in miliseconds) should pass between pings. Defaults to `5000`. 
+
+Example:
 ```js
 Connectivity.monitor({
-  'onError': function (error) {
+  onError: function (error) {
     console.warn('Error: ' + error);
   }
-  , 'onSlowConnection': function () {
+  , onSlow: function () {
     console.log('This connection is slow!');
   }
+  , retryInterval: 700
+  , maxLatency: 150
 });
 ```
 
-- `maxLatency` an optional integer representing the maximum accepted latency value (in miliseconds) before considering a connection "slow". Defaults to `10000`. Example:
-```js
-Connectivity.monitor({}, 2000);
-```
 -----------------------------------
 ### `Connectivity.isSlow()`
 Reactively shows if the connection is slow. Example:
@@ -65,6 +69,26 @@ Template.SomeTemplate.helpers({
 ...
 ```
 -----------------------------------
+### `Connectivity.latency()`
+Reactively returns the most recent latency value. Example:
+
+*someTemplate.js*
+```js
+Connectivity.monitor();
+
+Template.SomeTemplate.helpers({
+  latency: function () {
+    return Connectivity.latency();
+  }
+});
+```
+*someTemplate.html:*
+```html
+...
+<p>The current latency is {{latency}}</p>
+...
+```
+-----------------------------------
 ### `Connectivity.strength()`
 Reactively returns the connection strength. 
 
@@ -76,7 +100,9 @@ Example - use `Connectivity.strength()` to create a simple phone-style signal in
 
 *signal.js:*
 ```js
-Connectivity.monitor({}, 1000);
+Connectivity.monitor({
+    maxLatency: 1000
+});
 
 Template.Signal.helpers({
   bars: function () {
@@ -106,10 +132,10 @@ Template.Signal.helpers({
 *signal.css:*
 ```css
 .bar {
-	background-color: #888;
-	float: left;
-	margin: 1px;
-	width: 18px;
+  background-color: #888;
+  float: left;
+  margin: 1px;
+  width: 18px;
 }
 ```
 -----------------------------------

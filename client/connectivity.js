@@ -1,34 +1,33 @@
-var config
-    , latentIntervalHandle
-    , heartbeatIntervalHandle = null;
+var latentIntervalHandle;
 
 Connectivity = {
     _callbacks: {}
+    , _config: {}
     , _isSlow: new ReactiveVar(false)
-    //, latency: new ReactiveVar(0) 
-    // XXX In its current form, this package does not calculate the latency value, 
-    // it only checks if the latency is greater than `maxLatency`
+    , _latency: new ReactiveVar(0) 
 };
 
-Connectivity.monitor = function(callbacks, maxLatency){
+Connectivity.monitor = function(config){
     // set config defaults
-    config = _.defaults({}, {
-        maxLatency: maxLatency || 10000
-    });
-
-    this._callbacks = _.extend({
-        onError: function(error){
+    this._config = _.defaults(config || {}, {
+        maxLatency: 2000
+        , retryInterval: 5000
+        , onError: function(error){
             if (! _.isUndefined(console)) {
                 console.error(error);
             }
         }
-    }, callbacks);
-
+    });
+    this._callbacks = _.pick(this._config, 'onError', 'onSlow');
     this._monitor();
 };
 
 Connectivity.isSlow = function(){
     return this._isSlow.get();
+}
+
+Connectivity.latency = function(){
+    return this._latency.get();
 }
 
 Connectivity.strength = function(){
@@ -51,18 +50,25 @@ Connectivity._monitor = function(){
                 self._callbacks.onError('Meteor has disconnected!');
             }
         } else {
-            // Calculate the threshold for considering a connection slow using the heartbeat roundtrip duration and the maxLatency
-            var interval = Meteor.connection._heartbeatTimeout * 2 + config.maxLatency;
             latentIntervalHandle = Meteor.setInterval(function(){
-                if (Meteor.connection._heartbeat._heartbeatIntervalHandle === heartbeatIntervalHandle) {
-                    // we've detected a slow connection based on our configured limits
-                    self._isSlow.set(true);
-                    self._callbacks.onSlowConnection && self._callbacks.onSlowConnection();
-                } else {
-                    self._isSlow.set(false);
-                    heartbeatIntervalHandle = Meteor.connection._heartbeat._heartbeatIntervalHandle;
-                }
-            }, interval);
+                var timestamp = Date.now();
+                Meteor.call('connectivity.ping', timestamp, function (err, initialTimestamp) {
+                    if (err && !_.isUndefined(console)) {
+                        self._callbacks.onError(err.message || err.reason);
+                    } else {
+                        var currentTimestamp = Date.now()
+                            , latency = currentTimestamp - initialTimestamp;
+                        self._latency.set(latency);
+                        if (latency > self._config.maxLatency) {
+                            // we've detected a slow connection based on our configured limits
+                            self._isSlow.set(true);
+                            self._callbacks.onSlow && self._callbacks.onSlow();
+                        } else {
+                            self._isSlow.set(false);
+                        }
+                    }
+                });
+            }, self._config.retryInterval);
         }
     });  
 };
