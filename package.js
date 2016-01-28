@@ -1,6 +1,6 @@
 Package.describe({
   name: 'useful:connectivity',
-  version: '2.0.0',
+  version: '2.0.1',
   summary: 'Monitors connection speed',
   git: 'https://github.com/usefulio/connectivity.git',
   documentation: 'README.md'
